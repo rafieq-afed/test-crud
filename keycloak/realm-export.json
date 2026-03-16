@@ -1,0 +1,58 @@
+{
+  "realm": "crud",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "sslRequired": "external",
+  "clients": [
+    {
+      "clientId": "crud-api",
+      "name": "CRUD API",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost/*"
+      }
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "crud_admin", "description": "Can write to CRUD API" },
+      { "name": "crud_user", "description": "Can read CRUD API" }
+    ]
+  },
+  "users": [
+    {
+      "username": "user",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "user", "temporary": false }
+      ],
+      "realmRoles": ["crud_user"]
+    },
+    {
+      "username": "adminuser",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "adminuser", "temporary": false }
+      ],
+      "realmRoles": ["crud_user", "crud_admin"]
+    }
+  ]
+}
+
