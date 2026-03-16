@@ -1,6 +1,20 @@
 ## Simple Go CRUD API
 
-This is a minimal example of a CRUD HTTP API written in Go. It manages an in-memory list of `Book` items and is protected by Keycloak (OIDC) using JWT validation.
+This repo is a minimal REST **CRUD API** written in Go for a `Book` resource, plus **Keycloak (OIDC) integration** to protect endpoints using JWT access tokens.
+
+## What you’ll build
+
+- **Step 1**: Run the CRUD API locally.
+- **Step 2**: Test CRUD with curl/Postman.
+- **Step 3**: Start Keycloak locally (Docker).
+- **Step 4**: Get a Keycloak access token (password grant).
+- **Step 5**: Call protected CRUD endpoints with `Authorization: Bearer <token>`.
+
+## Prerequisites
+
+- Go (1.21+)
+- Docker Desktop (to run Keycloak)
+- Postman (optional)
 
 ### Run
 
@@ -12,6 +26,21 @@ go run .
 
 Keycloak will start on `http://localhost:8081` and the API will start on `http://localhost:8080`.
 
+### Step-by-step: develop the CRUD first (no auth mindset)
+
+The CRUD API exposes these routes:
+
+- `GET /books` (list)
+- `POST /books` (create)
+- `GET /books/{id}` (read)
+- `PUT/PATCH /books/{id}` (update)
+- `DELETE /books/{id}` (delete)
+
+Useful notes while developing/testing:
+
+- `GET /books/1` returns **404** if you haven’t created book `id=1` yet.
+- If you run `go run` with no args you’ll see `go: no go files listed`. Use `go run .` instead.
+
 ### Keycloak (local)
 
 - **Admin console**: `http://localhost:8081/admin`
@@ -22,6 +51,17 @@ Keycloak will start on `http://localhost:8081` and the API will start on `http:/
 - **Test users**:
   - **user/user** (role: `crud_user`)
   - **adminuser/adminuser** (roles: `crud_user`, `crud_admin`)
+
+### Step-by-step: Keycloak integration (how it works here)
+
+The API validates JWTs using Keycloak’s **JWKS** endpoint and checks **realm roles**:
+
+- **Read endpoints** (`GET /books`, `GET /books/{id}`): `crud_user` OR `crud_admin`
+- **Write endpoints** (`POST/PUT/PATCH/DELETE`): `crud_admin`
+
+Also available:
+
+- `GET /health` is **public** (no token).
 
 ### Get an access token (password grant)
 
@@ -48,7 +88,7 @@ curl -H "Authorization: Bearer <access_token>" http://localhost:8080/books
   - **Method**: `POST`
   - **URL**: `http://localhost:8081/realms/crud/protocol/openid-connect/token`
   - **Headers**: `Content-Type: application/x-www-form-urlencoded`
-  - **Body**: `x-www-form-urlencoded`
+  - **Body**: `x-www-form-urlencoded` (this is where you choose the user)
     - `grant_type`: `password`
     - `client_id`: `crud-api`
     - `username`: `adminuser` (or `user`)
@@ -94,6 +134,26 @@ curl -H "Authorization: Bearer <access_token>" http://localhost:8080/books
   - **DELETE** `/books/{id}`
   - Response: `204 No Content` on success, or `404 Not Found`.
 
+### Example calls (curl)
+
+Replace `<access_token>` with the token you got from Keycloak.
+
+List (read role required):
+
+```bash
+curl -i http://localhost:8080/health
+curl -i -H "Authorization: Bearer <access_token>" http://localhost:8080/books
+```
+
+Create (admin role required):
+
+```bash
+curl -i -X POST http://localhost:8080/books \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"My Book","author":"Author Name"}'
+```
+
 ### Notes
 
 - Data is stored **in memory only** and will be lost when the server restarts.
@@ -101,4 +161,12 @@ curl -H "Authorization: Bearer <access_token>" http://localhost:8080/books
 - Auth configuration (optional env vars):
   - `KEYCLOAK_ISSUER` (default `http://localhost:8081/realms/crud`)
   - `KEYCLOAK_JWKS_URL` (default `${KEYCLOAK_ISSUER}/protocol/openid-connect/certs`)
+
+### Troubleshooting
+
+- **`ECONNREFUSED 127.0.0.1:8081`**: Keycloak isn’t running. Start Docker Desktop, then `docker compose up -d`.
+- **`{"error":"invalid_grant","error_description":"Account is not fully set up"}`**:
+  - In Keycloak admin UI, select realm `crud` → Users → select the user → clear **Required Actions** and set **Email Verified** = ON.
+- **`404 page not found` when creating**:
+  - Create is **POST** to `/books` (not `/books/1`), and the request must be POST (browser address bar does GET).
 
