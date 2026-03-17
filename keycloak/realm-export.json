@@ -26,6 +26,25 @@
       "attributes": {
         "post.logout.redirect.uris": "http://localhost/*"
       }
+    },
+    {
+      "clientId": "crud-web",
+      "name": "CRUD Web",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:8082/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:8082"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8082/*"
+      }
     }
   ],
   "roles": {

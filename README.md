@@ -9,6 +9,7 @@ This repo is a minimal REST **CRUD API** written in Go for a `Book` resource, pl
 - **Step 3**: Start Keycloak locally (Docker).
 - **Step 4**: Get a Keycloak access token (password grant).
 - **Step 5**: Call protected CRUD endpoints with `Authorization: Bearer <token>`.
+- **Step 6 (Visitor view)**: Run the web UI and login via Keycloak in the browser.
 
 ## Prerequisites
 
@@ -25,6 +26,24 @@ go run .
 ```
 
 Keycloak will start on `http://localhost:8081` and the API will start on `http://localhost:8080`.
+
+### Visitor view (browser UI)
+
+This repo includes a tiny web app that redirects visitors to Keycloak to login, then shows the books page.
+
+Run it in a second terminal:
+
+```bash
+cd "test crud"
+go run ./cmd/web
+```
+
+Open `http://localhost:8082`.
+
+- Login as `user/user` to **view** books
+- Login as `adminuser/adminuser` to **create** books (admin role)
+
+Logout note: the web app logs you out from the web session and also redirects to Keycloak logout. If you get “Address already in use” on `:8082`, stop the old process using that port before re-running `go run ./cmd/web`.
 
 ### Step-by-step: develop the CRUD first (no auth mindset)
 
@@ -48,6 +67,7 @@ Useful notes while developing/testing:
   - **Password**: `admin`
 - **Realm**: `crud`
 - **Client**: `crud-api` (public client, Direct Access Grants enabled)
+- **Client (web UI)**: `crud-web` (public client, standard flow)
 - **Test users**:
   - **user/user** (role: `crud_user`)
   - **adminuser/adminuser** (roles: `crud_user`, `crud_admin`)
