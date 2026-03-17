@@ -45,6 +45,27 @@ Open `http://localhost:8082`.
 
 Logout note: the web app logs you out from the web session and also redirects to Keycloak logout. If you get “Address already in use” on `:8082`, stop the old process using that port before re-running `go run ./cmd/web`.
 
+### Student CRUD API (separate Go service, same Keycloak)
+
+This repo also includes a second API: a **Student CRUD** service that uses the **same Keycloak realm** and the **same roles** (`crud_user`, `crud_admin`).
+
+Run it in another terminal (defaults to `:8083`):
+
+```bash
+cd "test crud"
+go run ./cmd/student-api
+```
+
+Endpoints:
+
+- `GET /students` (requires `crud_user` or `crud_admin`)
+- `POST /students` (requires `crud_admin`)
+- `GET /students/{id}` (requires `crud_user` or `crud_admin`)
+- `PUT/PATCH /students/{id}` (requires `crud_admin`)
+- `DELETE /students/{id}` (requires `crud_admin`)
+
+If port `8083` is busy, set `STUDENT_ADDR` (example `:8090`).
+
 ### Step-by-step: develop the CRUD first (no auth mindset)
 
 The CRUD API exposes these routes:
