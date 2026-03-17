@@ -37,13 +37,15 @@
       "serviceAccountsEnabled": false,
       "protocol": "openid-connect",
       "redirectUris": [
-        "http://localhost:8082/callback"
+        "http://localhost:8082/callback",
+        "http://localhost:8083/callback"
       ],
       "webOrigins": [
-        "http://localhost:8082"
+        "http://localhost:8082",
+        "http://localhost:8083"
       ],
       "attributes": {
-        "post.logout.redirect.uris": "http://localhost:8082/*"
+        "post.logout.redirect.uris": "http://localhost:8082 http://localhost:8083"
       }
     }
   ],
